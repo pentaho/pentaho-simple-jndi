@@ -32,21 +32,21 @@
 
 package org.osjava.sj.jndi;
 
-import javax.naming.Context;
-import javax.naming.ContextNotEmptyException;
-import javax.naming.NamingException;
-import javax.naming.NameParser;
-import javax.naming.InvalidNameException;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NotContextException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.Name;
-
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.naming.Context;
+import javax.naming.ContextNotEmptyException;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NameNotFoundException;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.NotContextException;
 
 /**
  * The heart of the system, the abstract implementation of context for 
@@ -524,31 +524,33 @@ public abstract class AbstractContext
      * @see javax.naming.Context#destroySubcontext(javax.naming.Name)
      */
     public void destroySubcontext(Name name) throws NamingException {
-        if(name.size() > 1) {
-            if(subContexts.containsKey(name.getPrefix(1))) {
-                Context subContext = (Context)subContexts.get(name.getPrefix(1));
-                subContext.destroySubcontext(name.getSuffix(1));
-                return;
-            } 
-            /* TODO: Better message might be necessary */
-            throw new NameNotFoundException();
+      if ( name.size() > 1 ) {
+        if ( subContexts.containsKey( name.getPrefix( 1 ) ) ) {
+          Context subContext = (Context) subContexts.get( name.getPrefix( 1 ) );
+          subContext.destroySubcontext( name.getSuffix( 1 ) );
+          return;
         }
-        /* Look at the contextStore to see if the name is bound there */
-        if(table.containsKey(name)) {
-            throw new NotContextException();
+        /* TODO: Better message might be necessary */
+        throw new NameNotFoundException();
+      }
+      /* Look at the contextStore to see if the name is bound there */
+      if ( table.containsKey( name ) ) {
+        throw new NotContextException();
+      }
+      /* Look for the subcontext */
+      if ( !subContexts.containsKey( name ) ) {
+        throw new NameNotFoundException();
+      }
+      Context subContext = (Context) subContexts.get( name );
+      /* Look to see if the context is empty */
+      if ( !closing ) {
+        NamingEnumeration names = subContext.list( "" );
+        if ( names.hasMore() ) {
+          throw new ContextNotEmptyException();
         }
-        /* Look for the subcontext */
-        if(!subContexts.containsKey(name)) {
-            throw new NameNotFoundException();
-        }
-        Context subContext = (Context)subContexts.get(name); 
-        /* Look to see if the context is empty */
-        NamingEnumeration names = subContext.list("");
-        if(names.hasMore()) {
-            throw new ContextNotEmptyException();
-        }
-        ((Context)subContexts.get(name)).close();
-        subContexts.remove(name);
+      }
+      ( (Context) subContexts.get( name ) ).close();
+      subContexts.remove( name );
     }
 
     /**
@@ -557,7 +559,7 @@ public abstract class AbstractContext
     public void destroySubcontext(String name) throws NamingException {
         destroySubcontext(nameParser.parse(name));
     }
-
+    
     /**
      * @see javax.naming.Context#createSubcontext(javax.naming.Name)
      */
@@ -693,48 +695,52 @@ public abstract class AbstractContext
         return (Hashtable)this.env.clone();
     }
 
-    /**
-     * @see javax.naming.Context#close()
-     */
-    public void close() throws NamingException {
-        /* Don't try anything if we're already in the process of closing */
-        // BUG: closing is never actually set
-        if(closing) {
-            return;
-        }
-        Iterator it = subContexts.keySet().iterator();
-        while(it.hasNext()) {
-            destroySubcontext((Name)it.next());
-        }
-        
-        while(table.size() > 0 || subContexts.size() > 0) {
-            it = table.keySet().iterator();
-            while(it.hasNext()) {
-                Name name = (Name)it.next();
-
-                Object entry = table.get(name);
-
-                if(entry instanceof Thread) {
-                    Thread thread = (Thread) entry;
-                    if(thread.isAlive()) {
-                        table.remove(name);
-                    }
-                } else {
-                    table.remove(name);
-                }
-            }
-            it = subContexts.keySet().iterator();
-            while(it.hasNext()) {
-                Name name = (Name)it.next();
-                AbstractContext context = (AbstractContext)subContexts.get(name);
-                if(context.isEmpty()) {
-                    subContexts.remove(name);
-                }
-            }
-        }
-        this.env = null;
-        this.table = null;
+  /**
+   * @see javax.naming.Context#close()
+   */
+  public void close() throws NamingException {
+    /* Don't try anything if we're already in the process of closing */
+    // BUG: closing is never actually set
+    if ( closing ) {
+      return;
     }
+    closing = true;
+    try {
+      Iterator it = subContexts.keySet().iterator();
+      while ( it.hasNext() ) {
+        destroySubcontext( (Name) it.next() );
+      }
+
+      while ( table.size() > 0 || subContexts.size() > 0 ) {
+        it = table.keySet().iterator();
+        while ( it.hasNext() ) {
+          Name name = (Name) it.next();
+          Object entry = table.get( name );
+
+          if ( entry instanceof Thread ) {
+            Thread thread = (Thread) entry;
+            if ( thread.isAlive() ) {
+              table.remove( name );
+            }
+          } else {
+            it.remove();
+          }
+        }
+        it = subContexts.keySet().iterator();
+        while ( it.hasNext() ) {
+          Name name = (Name) it.next();
+          AbstractContext context = (AbstractContext) subContexts.get( name );
+          if ( context.isEmpty() ) {
+            it.remove();
+          }
+        }
+      }
+      this.env = null;
+      this.table = null;
+    } finally {
+      closing = false;
+    }
+  }
 
     /**
      * @see javax.naming.Context#getNameInNamespace()
