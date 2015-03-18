@@ -6,7 +6,7 @@
   <name>Simple JNDI with bug fixes</name>
   
   <parent>
-    <groupId>com.pentaho</groupId>
+    <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
     <version>1.0.11</version>
   </parent>
