@@ -8,10 +8,13 @@
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
   </parent>
   
   <properties>
+    <source.jdk.version>1.6</source.jdk.version>
+    <target.jdk.version>1.6</target.jdk.version>
+  	
     <junit.version>4.11</junit.version>
     <mockito.version>1.9.5</mockito.version>
 
