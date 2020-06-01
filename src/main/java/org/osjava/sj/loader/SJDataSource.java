@@ -32,6 +32,10 @@
 
 package org.osjava.sj.loader;
 
+import org.pentaho.support.encryption.Encr;
+import org.pentaho.support.encryption.PasswordEncoderException;
+import org.pentaho.support.utils.XmlParseException;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -82,6 +86,7 @@ public class SJDataSource implements DataSource {
   }
 
   public Connection getConnection( String username, String password ) throws SQLException {
+    password = decodePassword( password );
     String tmpUrl = this.url;
 
     String pool = properties.getProperty( "pool" );
@@ -153,6 +158,15 @@ public class SJDataSource implements DataSource {
   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  private String decodePassword( String password ) {
+    try {
+      return Encr.getInstance().decryptPasswordOptionallyEncrypted( password );
+    } catch ( PasswordEncoderException | XmlParseException e ) {
+      //Should have been setup prior
+      return password;
+    }
   }
 
 }
