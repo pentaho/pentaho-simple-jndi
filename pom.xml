@@ -9,7 +9,7 @@
 
   <groupId>pentaho</groupId>
   <artifactId>simple-jndi</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.4-SNAPSHOT</version>
 
   <name>Simple JNDI with bug fixes</name>
 
