@@ -1,6 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <!--
+    example execution:
+    $ mvn -DskipTests \
+          -Dpentaho.public.release.repo=https://repo.orl.eng.hitachivantara.com/artifactory/pntpub-mvn-release-orl \
+          -Dpentaho.public.snapshot.repo=https://repo.orl.eng.hitachivantara.com/artifactory/pntpub-mvn-snapshot-orl \
+          -Darguments="-DskipTests -Dpentaho.public.release.repo=https://repo.orl.eng.hitachivantara.com/artifactory/pntpub-mvn-release-orl -Dpentaho.public.snapshot.repo=https://repo.orl.eng.hitachivantara.com/artifactory/pntpub-mvn-snapshot-orl" \
+          -B \
+          release:prepare \
+          release:perform
+  -->
+
+
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
