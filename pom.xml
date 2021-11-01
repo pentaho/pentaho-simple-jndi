@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.pentaho</groupId>
     <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>9.1.0.6-544</version>
+    <version>9.2.0.2-383</version>
   </parent>
 
   <groupId>pentaho</groupId>
@@ -51,7 +51,7 @@
 
     <commons-lang.version>2.6</commons-lang.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
-    <encryption-support.version>9.3.0.0-SNAPSHOT</encryption-support.version>
+    <encryption-support.version>9.2.0.2-383</encryption-support.version>
     <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
   </properties>
 
