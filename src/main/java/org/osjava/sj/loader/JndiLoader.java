@@ -47,8 +47,7 @@ import javax.naming.NamingException;
 import org.osjava.sj.loader.convert.ConvertRegistry;
 import org.osjava.sj.loader.convert.Converter;
 
-import org.osjava.sj.loader.util.AbstractProperties;
-import org.osjava.sj.loader.util.CustomProperties;
+import org.osjava.sj.loader.util.BaseProperties;
 import org.osjava.sj.loader.util.IniProperties;
 import org.osjava.sj.loader.util.Utils;
 import org.osjava.sj.loader.util.XmlProperties;
@@ -163,7 +162,7 @@ public class JndiLoader {
 
     private Properties loadFile(File file) throws IOException {
 //        System.err.println("LOADING: "+file);
-        AbstractProperties p = null;
+        BaseProperties p = null;
 
         if(file.getName().endsWith(".xml")) {
             p = new XmlProperties();
@@ -171,7 +170,7 @@ public class JndiLoader {
         if(file.getName().endsWith(".ini")) {
             p = new IniProperties();
         } else {
-            p = new CustomProperties();
+            p = new BaseProperties();
         }
 
         p.setDelimiter( (String) this.table.get(SIMPLE_DELIMITER) );
