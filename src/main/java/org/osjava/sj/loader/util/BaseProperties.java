@@ -33,9 +33,7 @@
 package org.osjava.sj.loader.util;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -44,11 +42,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-public abstract class AbstractProperties extends Properties {
+public class BaseProperties extends Properties {
 
     private String delimiter = ".";
-
-    public abstract void load(InputStream in) throws IOException;
 
     public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;
@@ -78,13 +74,13 @@ public abstract class AbstractProperties extends Properties {
     // our index for the ordering
     protected ArrayList index = new ArrayList();
 
-    public AbstractProperties() {
+    public BaseProperties() {
         super();
     }
 
     // the props attribute is for defaults. These will need to be 
     // remembered for the save/store method.
-    public AbstractProperties(Properties props) {
+    public BaseProperties( Properties props) {
         super(props);
     }
 

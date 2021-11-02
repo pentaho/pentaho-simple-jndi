@@ -45,7 +45,7 @@ import java.io.InputStreamReader;
  * not in the two level are treated as simple one levels. 
  * Comments are a semi-colon. 
  */
-public class IniProperties extends AbstractProperties {
+public class IniProperties extends BaseProperties {
 
     /**
      * Load in a .ini file. 

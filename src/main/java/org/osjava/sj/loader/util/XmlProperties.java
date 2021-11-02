@@ -50,7 +50,7 @@ import org.xml.sax.SAXException;
 /**
  * Loads properties using the DOM API from an InputStream containing XML
  */
-public class XmlProperties extends AbstractProperties {
+public class XmlProperties extends BaseProperties {
 
     public XmlProperties() {
         super();
