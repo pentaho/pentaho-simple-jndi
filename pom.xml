@@ -21,7 +21,7 @@
 
   <groupId>pentaho</groupId>
   <artifactId>simple-jndi</artifactId>
-  <version>1.0.9-SNAPSHOT</version>
+  <version>1.0.9</version>
 
   <name>Simple JNDI with bug fixes</name>
 
@@ -29,7 +29,7 @@
     <connection>scm:git:git@github.com:pentaho/pentaho-simple-jndi.git</connection>
     <url>https://github.com/pentaho/pentaho-simple-jndi</url>
     <developerConnection>scm:git:git@github.com:pentaho/pentaho-simple-jndi.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>simple-jndi-1.0.9</tag>
   </scm>
   
   <distributionManagement>
