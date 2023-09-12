@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2003, Henri Yandell
+ * Copyright (c) 2015-2023, Hitachi Vantara and Others
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or 
@@ -37,81 +38,48 @@ import java.sql.DriverManager;
 import java.util.Properties;
 
 // gives us pooling
-import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.commons.dbcp.ConnectionFactory;
-import org.apache.commons.dbcp.PoolingDriver;
-import org.apache.commons.dbcp.PoolableConnectionFactory;
-import org.apache.commons.dbcp.DriverManagerConnectionFactory;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.dbcp2.ConnectionFactory;
+import org.apache.commons.dbcp2.PoolingDriver;
+import org.apache.commons.dbcp2.PoolableConnectionFactory;
+import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
 
 /**
  * This is a wrapper for the Pooling functionality, currently provided 
- * by Jakarta DBCP. Having the wrapper allows the dependency to be 
+ * by Jakarta DBCP2. Having the wrapper allows the dependency to be
  * optional. 
  */
 public class PoolSetup {
 
     public static void setupConnection(String pool, String url, String username, String password, Properties properties) throws SQLException {
-        // we have a pool-name to setup using dbcp
-        GenericObjectPool connectionPool = new GenericObjectPool(null, 
-            toInt(properties.getProperty("dbcpMaxActive"), GenericObjectPool.DEFAULT_MAX_ACTIVE),
-            (byte) toInt(properties.getProperty("dbcpWhenExhaustedAction"), GenericObjectPool.DEFAULT_WHEN_EXHAUSTED_ACTION),
-            toLong(properties.getProperty("dbcpMaxWait"), GenericObjectPool.DEFAULT_MAX_WAIT),
-            toInt(properties.getProperty("dbcpMaxIdle"), GenericObjectPool.DEFAULT_MAX_IDLE),
-            toInt(properties.getProperty("dbcpMinIdle"), GenericObjectPool.DEFAULT_MIN_IDLE),
-            toBoolean(properties.getProperty("dbcpTestOnBorrow"), GenericObjectPool.DEFAULT_TEST_ON_BORROW),
-            toBoolean(properties.getProperty("dbcpTestOnReturn"), GenericObjectPool.DEFAULT_TEST_ON_RETURN),
-            toLong(properties.getProperty("dbcpTimeBetweenEvictionRunsMillis"), GenericObjectPool.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS),
-            toInt(properties.getProperty("dbcpNumTestsPerEvictionRun"), GenericObjectPool.DEFAULT_NUM_TESTS_PER_EVICTION_RUN),
-            toLong(properties.getProperty("dbcpMinEvictableIdleTimeMillis"), GenericObjectPool.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS),
-            toBoolean(properties.getProperty("dbcpTestWhileIdle"), GenericObjectPool.DEFAULT_TEST_WHILE_IDLE),
-            toLong(properties.getProperty("dbcpSoftMinEvictableIdleTimeMillis"), GenericObjectPool.DEFAULT_SOFT_MIN_EVICTABLE_IDLE_TIME_MILLIS)
-        );
-//            toBoolean(properties.getProperty("dbcpLifo"), GenericObjectPool.DEFAULT_LIFO)
-
         ConnectionFactory connectionFactory = null;
-        if(username == null || password == null) {
+        if( username == null || password == null ) {
             // TODO: Suck configuration in and build a Properties to replace the null below
-            connectionFactory = new DriverManagerConnectionFactory(url, null);
+            connectionFactory = new DriverManagerConnectionFactory(url, null );
         } else {
-            connectionFactory = new DriverManagerConnectionFactory(url, username, password);
+            connectionFactory = new DriverManagerConnectionFactory( url, username, password );
         }
-        new PoolableConnectionFactory(connectionFactory, connectionPool, null, properties.getProperty("dbcpValidationQuery"), toBoolean(properties.getProperty("dbcpDefaultReadOnly"), false), toBoolean(properties.getProperty("dbcpDefaultAutoCommit"), true));
+        PoolableConnectionFactory f = new PoolableConnectionFactory( connectionFactory, null );
+        f.setValidationQuery( properties.getProperty( "dbcpValidationQuery" ) );
+        f.setDefaultReadOnly( toBoolean( properties.getProperty( "dbcpDefaultReadOnly" ), false ) );
+        f.setDefaultAutoCommit( toBoolean( properties.getProperty( "dbcpDefaultAutoCommit" ), true ) );
+
+        // we have a pool-name to setup using dbcp
+        JndiPoolConfig jndiPoolConfig = new JndiPoolConfig( properties );
+        GenericObjectPool connectionPool = new GenericObjectPool(f, jndiPoolConfig );
+
         try {
-            Class.forName("org.apache.commons.dbcp.PoolingDriver");
-        } catch(ClassNotFoundException cnfe) {
+            Class.forName("org.apache.commons.dbcp2.PoolingDriver");
+        } catch( ClassNotFoundException cnfe ) {
             // not too good
-            System.err.println("WARNING: DBCP needed but not in the classpath. ");
+            System.err.println("WARNING: DBCP2 needed but not in the classpath. ");
         }
         PoolingDriver driver = (PoolingDriver) DriverManager.getDriver("jdbc:apache:commons:dbcp:");
         driver.registerPool(pool, connectionPool);
-
-    //  Runtime.getRuntime().addShutdownHook( new ShutdownDbcpThread(pool) );
     }
 
     public static String getUrl(String pool) {
         return "jdbc:apache:commons:dbcp:"+pool;
-    }
-
-    private static int toInt(String str, int def) {
-        if(str == null) {
-            return def;
-        }
-        try {
-            return Integer.parseInt(str);
-        } catch(NumberFormatException nfe) {
-            throw new RuntimeException("Unable to parse as int: '" + str + "'", nfe);
-        }
-    }
-
-    private static long toLong(String str, long def) {
-        if(str == null) {
-            return def;
-        }
-        try {
-            return Long.parseLong(str);
-        } catch(NumberFormatException nfe) {
-            throw new RuntimeException("Unable to parse as long: '" + str + "'", nfe);
-        }
     }
 
     private static boolean toBoolean(String str, boolean def) {
@@ -130,26 +98,4 @@ public class PoolSetup {
 
 }
 
-/*
-// this is not available in the version of DBCP being used.
-class ShutdownDbcpThread extends Thread {
-    
-    private String pool;
-
-    public ShutdownDbcpThread(String pool) {
-        this.pool = pool;
-    }
-
-    public void run() {
-        try {
-            PoolingDriver driver = (PoolingDriver) DriverManager.getDriver("jdbc:apache:commons:dbcp:");
-            driver.closePool(this.pool);
-        } catch(SQLException sqle) {
-            // failed to close
-        } catch(ClassNotFoundException cnfe) {
-            // oops, unable to close pools, sorry DBA
-        }
-    }
-}
-*/
 
