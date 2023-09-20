@@ -35,9 +35,12 @@ package org.osjava.sj.loader;
 
 import java.sql.SQLException;
 import java.sql.DriverManager;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 // gives us pooling
+import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.dbcp2.ConnectionFactory;
 import org.apache.commons.dbcp2.PoolingDriver;
@@ -50,32 +53,38 @@ import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
  * optional. 
  */
 public class PoolSetup {
+    public static Map<String, ObjectPool> poolMap = new ConcurrentHashMap<>();
 
     public static void setupConnection(String pool, String url, String username, String password, Properties properties) throws SQLException {
-        ConnectionFactory connectionFactory = null;
-        if( username == null || password == null ) {
-            // TODO: Suck configuration in and build a Properties to replace the null below
-            connectionFactory = new DriverManagerConnectionFactory(url, null );
-        } else {
-            connectionFactory = new DriverManagerConnectionFactory( url, username, password );
-        }
-        PoolableConnectionFactory f = new PoolableConnectionFactory( connectionFactory, null );
-        f.setValidationQuery( properties.getProperty( "dbcpValidationQuery" ) );
-        f.setDefaultReadOnly( toBoolean( properties.getProperty( "dbcpDefaultReadOnly" ), false ) );
-        f.setDefaultAutoCommit( toBoolean( properties.getProperty( "dbcpDefaultAutoCommit" ), true ) );
+        ObjectPool connectionPool = poolMap.get( pool );
+        if ( connectionPool == null ) {
+            ConnectionFactory connectionFactory = null;
+            if ( username == null || password == null ) {
+                // TODO: Suck configuration in and build a Properties to replace the null below
+                connectionFactory = new DriverManagerConnectionFactory( url, null );
+            } else {
+                connectionFactory = new DriverManagerConnectionFactory( url, username, password );
+            }
+            PoolableConnectionFactory f = new PoolableConnectionFactory( connectionFactory, null );
+            f.setValidationQuery( properties.getProperty( "dbcpValidationQuery" ) );
+            f.setDefaultReadOnly( toBoolean( properties.getProperty( "dbcpDefaultReadOnly" ), false ) );
+            f.setDefaultAutoCommit( toBoolean( properties.getProperty( "dbcpDefaultAutoCommit" ), true ) );
 
-        // we have a pool-name to setup using dbcp
-        JndiPoolConfig jndiPoolConfig = new JndiPoolConfig( properties );
-        GenericObjectPool connectionPool = new GenericObjectPool(f, jndiPoolConfig );
+            // we have a pool-name to setup using dbcp
+            JndiPoolConfig jndiPoolConfig = new JndiPoolConfig( properties );
+            connectionPool = new GenericObjectPool( f, jndiPoolConfig );
+            f.setPool( connectionPool );
 
-        try {
-            Class.forName("org.apache.commons.dbcp2.PoolingDriver");
-        } catch( ClassNotFoundException cnfe ) {
-            // not too good
-            System.err.println("WARNING: DBCP2 needed but not in the classpath. ");
+            try {
+                Class.forName( "org.apache.commons.dbcp2.PoolingDriver" );
+            } catch ( ClassNotFoundException cnfe ) {
+                // not too good
+                System.err.println( "WARNING: DBCP2 needed but not in the classpath. " );
+            }
         }
         PoolingDriver driver = (PoolingDriver) DriverManager.getDriver("jdbc:apache:commons:dbcp:");
         driver.registerPool(pool, connectionPool);
+        poolMap.put( pool, connectionPool );
     }
 
     public static String getUrl(String pool) {
