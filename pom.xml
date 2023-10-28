@@ -46,7 +46,7 @@
   </distributionManagement>
 
   <properties>
-    <junit.version>4.11</junit.version>
+    <junit.version>4.13.1</junit.version>
     <mockito.version>3.12.4</mockito.version>
 
     <commons-lang.version>2.6</commons-lang.version>
