@@ -49,7 +49,6 @@
     <junit.version>4.11</junit.version>
     <mockito.version>3.12.4</mockito.version>
 
-    <commons-lang.version>2.6</commons-lang.version>
     <commons-dbcp2.version>2.9.0</commons-dbcp2.version>
     <commons-pool2.version>2.11.1</commons-pool2.version>
     <encryption-support.version>9.5.0.0-240</encryption-support.version>
@@ -59,11 +58,6 @@
 
   <dependencies>
 
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>${commons-lang.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-dbcp2</artifactId>
