@@ -28,7 +28,7 @@
   <scm>
     <connection>scm:git:git@github.com:pentaho/pentaho-simple-jndi.git</connection>
     <url>https://github.com/pentaho/pentaho-simple-jndi</url>
-    <developerConnection>scm:git:git@github.com:pentaho/pentaho-simple-jndi.git</developerConnection>
+    <developerConnection>${developer.connection}</developerConnection>
     <tag>HEAD</tag>
   </scm>
   
@@ -46,6 +46,7 @@
   </distributionManagement>
 
   <properties>
+    <developer.connection>scm:git:git@github.com:pentaho/pentaho-simple-jndi.git</developer.connection>
     <junit.version>4.11</junit.version>
     <mockito.version>3.12.4</mockito.version>
 
