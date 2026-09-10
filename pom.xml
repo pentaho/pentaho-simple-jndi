@@ -15,9 +15,9 @@
   <!--
     example execution:
     $ mvn -DskipTests \
-          -Dpentaho.public.release.repo=https://repo.orl.eng.hitachivantara.com/artifactory/pntpub-mvn-release-orl \
-          -Dpentaho.public.snapshot.repo=https://repo.orl.eng.hitachivantara.com/artifactory/pntpub-mvn-snapshot-orl \
-          -Darguments="-DskipTests -Dpentaho.public.release.repo=https://repo.orl.eng.hitachivantara.com/artifactory/pntpub-mvn-release-orl -Dpentaho.public.snapshot.repo=https://repo.orl.eng.hitachivantara.com/artifactory/pntpub-mvn-snapshot-orl" \
+          -Dpentaho.public.release.repo=https://repo.pentaho.com/artifactory/pntpub-mvn-release-orl \
+          -Dpentaho.public.snapshot.repo=https://repo.pentaho.com/artifactory/pntpub-mvn-snapshot-orl \
+          -Darguments="-DskipTests -Dpentaho.public.release.repo=https://repo.pentaho.com/artifactory/pntpub-mvn-release-orl -Dpentaho.public.snapshot.repo=https://repo.pentaho.com/artifactory/pntpub-mvn-snapshot-orl" \
           -B \
           release:prepare \
           release:perform
